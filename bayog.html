@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pharma Care — Pharmacy Inventory Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="bayog.css" />
+</head>
+<body>
+  <div class="app-layout" id="appLayout">
+    <!-- Left Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo-wrap">
+          <img
+            src="https://www.pharmacare.co.il/wp-content/uploads/2024/10/PharmaCare.png"
+            alt="Pharma Care Logo"
+            class="brand-logo-img"
+            onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';"
+          />
+          <div id="logoFallback" class="logo-fallback">
+            <i class="fa-solid fa-mortar-pestle"></i>
+          </div>
+          <span class="brand-name">Pharma Care</span>
+        </div>
+        <button class="collapse-btn" id="toggleSidebarBtn" title="Toggle Sidebar">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="dashboardSection">
+          <i class="fa-solid fa-house"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-section="inventorySection">
+          <i class="fa-solid fa-capsules"></i>
+          <span>Medicines &amp; Items</span>
+          <i class="fa-solid fa-chevron-right nav-arrow"></i>
+        </a>
+        <a href="#" class="nav-item" data-section="invoicesSection">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span>Dispensing / Sale</span>
+          <i class="fa-solid fa-chevron-right nav-arrow"></i>
+        </a>
+        <a href="#" class="nav-item" onclick="openModal('purchaseModal'); return false;">
+          <i class="fa-solid fa-truck-medical"></i>
+          <span>Restock / Purchase</span>
+          <i class="fa-solid fa-chevron-right nav-arrow"></i>
+        </a>
+        <a href="#" class="nav-item" data-section="inventorySection" onclick="filterByExpiring(); return false;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>Expiry Alerts</span>
+          <i class="fa-solid fa-chevron-right nav-arrow"></i>
+        </a>
+        <a href="#" class="nav-item" data-section="warehousesSection">
+          <i class="fa-solid fa-users"></i>
+          <span>Suppliers &amp; Patients</span>
+          <i class="fa-solid fa-chevron-right nav-arrow"></i>
+        </a>
+        <a href="#" class="nav-item" data-section="invoicesSection">
+          <i class="fa-solid fa-receipt"></i>
+          <span>Expenses</span>
+        </a>
+
+        <div class="nav-group-label">CORE</div>
+
+        <a href="#" class="nav-item" data-section="dashboardSection">
+          <i class="fa-solid fa-building-columns"></i>
+          <span>Cash &amp; Bank</span>
+        </a>
+        <a href="#" class="nav-item" data-section="warehousesSection">
+          <i class="fa-solid fa-warehouse"></i>
+          <span>Storage Zones</span>
+          <i class="fa-solid fa-chevron-right nav-arrow"></i>
+        </a>
+        <a href="#" class="nav-item" data-section="warehousesSection">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>Shelf Management</span>
+        </a>
+        <a href="#" class="nav-item" data-section="invoicesSection">
+          <i class="fa-solid fa-right-left"></i>
+          <span>Transactions</span>
+          <i class="fa-solid fa-chevron-right nav-arrow"></i>
+        </a>
+        <a href="#" class="nav-item" data-section="inventorySection">
+          <i class="fa-solid fa-barcode"></i>
+          <span>Batch &amp; Barcode</span>
+          <i class="fa-solid fa-chevron-right nav-arrow"></i>
+        </a>
+        <a href="#" class="nav-item" onclick="exportInventoryCSV(); return false;">
+          <i class="fa-solid fa-file-export"></i>
+          <span>Export Reports</span>
+          <i class="fa-solid fa-chevron-right nav-arrow"></i>
+        </a>
+        <a href="#" class="nav-item" onclick="openModal('addProductModal'); return false;">
+          <i class="fa-solid fa-plus-circle"></i>
+          <span>Add New Medicine</span>
+        </a>
+
+        <div class="nav-group-label">OTHER</div>
+
+        <a href="#" class="nav-item" onclick="resetDemoData(); return false;">
+          <i class="fa-solid fa-rotate"></i>
+          <span>Reset Demo Stock</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      <!-- Top Header -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar-brand-pill">
+            <img
+              src="https://www.pharmacare.co.il/wp-content/uploads/2024/10/PharmaCare.png"
+              alt="Pharma Care"
+              class="topbar-logo"
+              onerror="this.style.display='none'"
+            />
+            <span>Pharma Care Portal</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button class="action-pill pill-blue" onclick="openModal('purchaseModal')">
+            <i class="fa-solid fa-circle-plus"></i> Add Purchase
+          </button>
+          <button class="action-pill pill-pink" onclick="openModal('saleModal')">
+            <i class="fa-solid fa-circle-plus"></i> Add Sale
+          </button>
+
+          <div class="topbar-icons">
+            <button class="icon-btn" title="Quick Add Medicine" onclick="openModal('addProductModal')">
+              <i class="fa-solid fa-table-cells-large"></i>
+            </button>
+            <button class="icon-btn badge-bell" title="Low Stock & Expiry Notifications" onclick="filterByLowStock()">
+              <i class="fa-regular fa-bell"></i>
+              <span class="notif-dot" id="alertCountDot">0</span>
+            </button>
+            <button class="icon-btn" id="darkModeToggleBtn" title="Toggle Dark Mode" onclick="toggleDarkMode()">
+              <i class="fa-regular fa-moon" id="darkModeIcon"></i>
+            </button>
+            <button class="gold-badge" id="shieldBtn" title="Pharmacy Compliance & License Status" onclick="openModal('shieldModal')">
+              <i class="fa-solid fa-shield-halved"></i>
+            </button>
+          </div>
+
+          <div class="user-profile">
+            <div class="user-avatar">
+              <i class="fa-solid fa-user-secret"></i>
+            </div>
+            <div class="user-info">
+              <span class="user-name">Anonymous</span>
+              <span class="user-role">Staff / Admin</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Body -->
+      <main class="content-area" id="dashboardSection">
+        <!-- 8 KPI Summary Cards -->
+        <section class="kpi-grid">
+          <div class="kpi-card border-blue">
+            <div class="kpi-text">
+              <span class="kpi-title">Pending Dispense Orders</span>
+              <span class="kpi-value text-blue" id="kpiPendingSales">3</span>
+            </div>
+            <div class="kpi-icon bg-blue">
+              <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+          </div>
+
+          <div class="kpi-card border-green">
+            <div class="kpi-text">
+              <span class="kpi-title">Completed Sale Orders</span>
+              <span class="kpi-value text-green" id="kpiCompletedSales">142</span>
+            </div>
+            <div class="kpi-icon bg-green">
+              <i class="fa-solid fa-check"></i>
+            </div>
+          </div>
+
+          <div class="kpi-card border-red">
+            <div class="kpi-text">
+              <span class="kpi-title">Insurance Receivables (PHP)</span>
+              <span class="kpi-value text-red" id="kpiReceivables">₱84,520.50</span>
+            </div>
+            <div class="kpi-icon bg-red">
+              <i class="fa-solid fa-arrow-up"></i>
+            </div>
+          </div>
+
+          <div class="kpi-card border-orange">
+            <div class="kpi-text">
+              <span class="kpi-title">Supplier Payables (PHP)</span>
+              <span class="kpi-value text-orange" id="kpiPayables">₱12,480.75</span>
+            </div>
+            <div class="kpi-icon bg-orange">
+              <i class="fa-solid fa-arrow-down"></i>
+            </div>
+          </div>
+
+          <div class="kpi-card border-blue">
+            <div class="kpi-text">
+              <span class="kpi-title">Total Catalog SKUs</span>
+              <span class="kpi-value text-blue" id="kpiTotalSkus">60</span>
+            </div>
+            <div class="kpi-icon bg-blue">
+              <i class="fa-solid fa-pills"></i>
+            </div>
+          </div>
+
+          <div class="kpi-card border-green">
+            <div class="kpi-text">
+              <span class="kpi-title">Total Units in Stock</span>
+              <span class="kpi-value text-green" id="kpiTotalUnits">0</span>
+            </div>
+            <div class="kpi-icon bg-green">
+              <i class="fa-solid fa-check-double"></i>
+            </div>
+          </div>
+
+          <div class="kpi-card border-red">
+            <div class="kpi-text">
+              <span class="kpi-title">Inventory Valuation (PHP)</span>
+              <span class="kpi-value text-red" id="kpiTotalValue">₱0.00</span>
+            </div>
+            <div class="kpi-icon bg-red">
+              <i class="fa-solid fa-peso-sign"></i>
+            </div>
+          </div>
+
+          <div class="kpi-card border-orange">
+            <div class="kpi-text">
+              <span class="kpi-title">Low Stock / Expiring</span>
+              <span class="kpi-value text-orange" id="kpiAlertsCount">0</span>
+            </div>
+            <div class="kpi-icon bg-orange">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+          </div>
+        </section>
+
+        <!-- Middle Row: Charts -->
+        <section class="charts-grid">
+          <!-- Sale vs. Purchase Bar Chart -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3>Sale vs. Purchase (PHP)</h3>
+              <div class="chart-legend">
+                <span><i class="dot dot-yellow"></i> Purchase Bills</span>
+                <span><i class="dot dot-blue"></i> Sale Invoices</span>
+              </div>
+            </div>
+            <div class="bar-chart-wrapper">
+              <div class="y-axis">
+                <span>₱50k</span>
+                <span>₱45k</span>
+                <span>₱40k</span>
+                <span>₱35k</span>
+                <span>₱30k</span>
+                <span>₱25k</span>
+                <span>₱20k</span>
+                <span>₱15k</span>
+                <span>₱10k</span>
+                <span>₱5k</span>
+                <span>₱0</span>
+              </div>
+              <div class="bars-container">
+                <div class="month-col">
+                  <div class="bar-pair">
+                    <div class="bar bar-yellow" style="height: 28%;" title="Purchase: ₱14,000"></div>
+                    <div class="bar bar-blue" style="height: 44%;" title="Sales: ₱22,000"></div>
+                  </div>
+                  <span class="month-label">Jun 2026</span>
+                </div>
+                <div class="month-col">
+                  <div class="bar-pair">
+                    <div class="bar bar-yellow" style="height: 36%;" title="Purchase: ₱18,000"></div>
+                    <div class="bar bar-blue" style="height: 55%;" title="Sales: ₱27,500"></div>
+                  </div>
+                  <span class="month-label">Jul 2026</span>
+                </div>
+                <div class="month-col">
+                  <div class="bar-pair">
+                    <div class="bar bar-yellow" style="height: 22%;" title="Purchase: ₱11,000"></div>
+                    <div class="bar bar-blue" style="height: 61%;" title="Sales: ₱30,500"></div>
+                  </div>
+                  <span class="month-label">Aug 2026</span>
+                </div>
+                <div class="month-col">
+                  <div class="bar-pair">
+                    <div class="bar bar-yellow" style="height: 45%;" title="Purchase: ₱22,500"></div>
+                    <div class="bar bar-blue" style="height: 70%;" title="Sales: ₱35,000"></div>
+                  </div>
+                  <span class="month-label">Sep 2026</span>
+                </div>
+                <div class="month-col">
+                  <div class="bar-pair">
+                    <div class="bar bar-yellow" style="height: 38%;" title="Purchase: ₱19,000"></div>
+                    <div class="bar bar-blue" style="height: 88%;" title="Sales: ₱44,000"></div>
+                  </div>
+                  <span class="month-label">Oct 2026</span>
+                </div>
+                <div class="month-col">
+                  <div class="bar-pair">
+                    <div class="bar bar-yellow" style="height: 52%;" title="Purchase: ₱26,000"></div>
+                    <div class="bar bar-blue" style="height: 94%;" title="Sales: ₱47,000"></div>
+                  </div>
+                  <span class="month-label">Nov 2026</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trending Medications Donut Chart -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3>Trending Medications</h3>
+            </div>
+            <div class="donut-area">
+              <div class="donut-ring">
+                <div class="donut-hole">
+                  <span class="donut-total">Top SKUs</span>
+                  <small>Nov 2026</small>
+                </div>
+              </div>
+            </div>
+            <div class="trending-list">
+              <div class="trending-row">
+                <span>Amoxicillin 500mg Capsules</span>
+                <span class="green-pill">₱12,400.00</span>
+              </div>
+              <div class="trending-row">
+                <span>Paracetamol 500mg Tablets</span>
+                <span class="green-pill">₱9,800.00</span>
+              </div>
+              <div class="trending-row">
+                <span>Atorvastatin 20mg Tablets</span>
+                <span class="green-pill">₱8,450.00</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Storage Zones / Warehouses Section -->
+        <section class="warehouses-section" id="warehousesSection">
+          <div class="section-heading">
+            <i class="fa-solid fa-warehouse"></i>
+            <h2>All Pharmacy Storage Zones</h2>
+          </div>
+
+          <div class="warehouses-grid">
+            <div class="warehouse-card" onclick="filterByWarehouse('Main Dispensary')">
+              <div class="wh-top">
+                <div>
+                  <h4>Main Dispensary</h4>
+                  <span class="status-badge active">Active</span>
+                </div>
+                <div class="wh-orb"></div>
+              </div>
+              <div class="wh-stats">
+                <div>
+                  <span class="wh-label">SKUs</span>
+                  <strong class="wh-num" id="whMainItems">0</strong>
+                </div>
+                <div>
+                  <span class="wh-label">Stock Units</span>
+                  <strong class="wh-num" id="whMainStock">0</strong>
+                </div>
+                <div>
+                  <span class="wh-label">Shelves</span>
+                  <strong class="wh-num">14</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="warehouse-card" onclick="filterByWarehouse('Cold Chain Storage')">
+              <div class="wh-top">
+                <div>
+                  <h4>Cold Chain Storage (2°C–8°C)</h4>
+                  <span class="status-badge active">Active</span>
+                </div>
+                <div class="wh-orb"></div>
+              </div>
+              <div class="wh-stats">
+                <div>
+                  <span class="wh-label">SKUs</span>
+                  <strong class="wh-num" id="whColdItems">0</strong>
+                </div>
+                <div>
+                  <span class="wh-label">Stock Units</span>
+                  <strong class="wh-num" id="whColdStock">0</strong>
+                </div>
+                <div>
+                  <span class="wh-label">Coolers</span>
+                  <strong class="wh-num">6</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="warehouse-card" onclick="filterByWarehouse('Central Pharma Vault')">
+              <div class="wh-top">
+                <div>
+                  <h4>Central Pharma Vault</h4>
+                  <span class="status-badge active">Active</span>
+                </div>
+                <div class="wh-orb"></div>
+              </div>
+              <div class="wh-stats">
+                <div>
+                  <span class="wh-label">SKUs</span>
+                  <strong class="wh-num" id="whVaultItems">0</strong>
+                </div>
+                <div>
+                  <span class="wh-label">Stock Units</span>
+                  <strong class="wh-num" id="whVaultStock">0</strong>
+                </div>
+                <div>
+                  <span class="wh-label">Racks</span>
+                  <strong class="wh-num">22</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Full Pharmacy Product Inventory Catalog -->
+        <section class="panel-card inventory-panel" id="inventorySection">
+          <div class="inventory-header">
+            <div>
+              <h3>Pharma Care Product Inventory (<span id="visibleCount">60</span> items)</h3>
+              <p class="subtext">Manage prescription drugs, OTC medications, biologics, cold-chain items, and medical supplies (Prices in PHP ₱)</p>
+            </div>
+            <div class="inventory-actions">
+              <button class="btn-primary" onclick="openModal('addProductModal')">
+                <i class="fa-solid fa-plus"></i> Add Medicine
+              </button>
+              <button class="btn-outline" onclick="exportInventoryCSV()">
+                <i class="fa-solid fa-download"></i> Export CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- Search and Filters -->
+          <div class="filter-bar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search by medicine name, generic ingredient, SKU, or batch..."
+                oninput="renderInventory()"
+              />
+            </div>
+
+            <select id="categoryFilter" onchange="renderInventory()">
+              <option value="ALL">All Categories</option>
+              <option value="Antibiotics">Antibiotics</option>
+              <option value="Pain & Fever">Pain &amp; Fever</option>
+              <option value="Cardiovascular">Cardiovascular</option>
+              <option value="Diabetes & Endocrine">Diabetes &amp; Endocrine</option>
+              <option value="Respiratory & Allergy">Respiratory &amp; Allergy</option>
+              <option value="Gastrointestinal">Gastrointestinal</option>
+              <option value="Vitamins & Supplements">Vitamins &amp; Supplements</option>
+              <option value="Dermatology & Eye">Dermatology &amp; Eye</option>
+              <option value="First Aid & Devices">First Aid &amp; Devices</option>
+            </select>
+
+            <select id="warehouseFilter" onchange="renderInventory()">
+              <option value="ALL">All Storage Zones</option>
+              <option value="Main Dispensary">Main Dispensary</option>
+              <option value="Cold Chain Storage">Cold Chain Storage</option>
+              <option value="Central Pharma Vault">Central Pharma Vault</option>
+            </select>
+
+            <select id="stockStatusFilter" onchange="renderInventory()">
+              <option value="ALL">All Stock Status</option>
+              <option value="IN_STOCK">In Stock</option>
+              <option value="LOW_STOCK">Low Stock (&le; 25)</option>
+              <option value="EXPIRING">Expiring Soon</option>
+            </select>
+
+            <button class="btn-reset" onclick="resetFilters()">Clear Filters</button>
+          </div>
+
+          <!-- Inventory Table -->
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Product Name &amp; Strength</th>
+                  <th>Generic / Active Ingredient</th>
+                  <th>Category</th>
+                  <th>Storage Zone</th>
+                  <th>Batch &amp; Expiry</th>
+                  <th>Unit Price (₱)</th>
+                  <th>Stock Qty</th>
+                  <th>Status</th>
+                  <th>Quick Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Recent Invoices Section -->
+        <section class="panel-card invoices-panel" id="invoicesSection">
+          <div class="panel-header">
+            <h3>Recent Pharmacy Invoices (PHP)</h3>
+            <button class="action-pill pill-pink" onclick="openModal('saleModal')">
+              <i class="fa-solid fa-plus"></i> New Dispense Invoice
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Invoice Date</th>
+                  <th>Sale Code</th>
+                  <th>Customer / Patient Name</th>
+                  <th>Medication Dispensed</th>
+                  <th>Grand Total (₱)</th>
+                  <th>Balance (₱)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="invoicesTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <span>Copyright &copy; Pharma Care Pharmacy Systems - 2026 (v2.4.0)</span>
+        <button class="scroll-top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Back to top">
+          <i class="fa-solid fa-arrow-up"></i>
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal 1: Add New Medicine -->
+  <div class="modal-backdrop" id="addProductModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-capsules"></i> Add New Pharmacy Product</h3>
+        <button class="close-modal" onclick="closeModal('addProductModal')">&times;</button>
+      </div>
+      <form id="addProductForm" onsubmit="handleAddProduct(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Medicine / Product Name *</label>
+            <input type="text" id="newProdName" required placeholder="e.g. Cefuroxime 500mg Tablets" />
+          </div>
+          <div class="form-group">
+            <label>Generic / Active Ingredient *</label>
+            <input type="text" id="newProdGeneric" required placeholder="e.g. Cefuroxime Axetil" />
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="newProdCategory">
+              <option value="Antibiotics">Antibiotics</option>
+              <option value="Pain & Fever">Pain &amp; Fever</option>
+              <option value="Cardiovascular">Cardiovascular</option>
+              <option value="Diabetes & Endocrine">Diabetes &amp; Endocrine</option>
+              <option value="Respiratory & Allergy">Respiratory &amp; Allergy</option>
+              <option value="Gastrointestinal">Gastrointestinal</option>
+              <option value="Vitamins & Supplements">Vitamins &amp; Supplements</option>
+              <option value="Dermatology & Eye">Dermatology &amp; Eye</option>
+              <option value="First Aid & Devices">First Aid &amp; Devices</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Storage Zone *</label>
+            <select id="newProdWarehouse">
+              <option value="Main Dispensary">Main Dispensary</option>
+              <option value="Cold Chain Storage">Cold Chain Storage</option>
+              <option value="Central Pharma Vault">Central Pharma Vault</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Batch Number *</label>
+            <input type="text" id="newProdBatch" required value="PC-2026-889" />
+          </div>
+          <div class="form-group">
+            <label>Expiry Date *</label>
+            <input type="date" id="newProdExpiry" required value="2028-06-30" />
+          </div>
+          <div class="form-group">
+            <label>Unit Price (₱ PHP) *</label>
+            <input type="number" step="0.01" min="0.1" id="newProdPrice" required placeholder="145.00" />
+          </div>
+          <div class="form-group">
+            <label>Initial Stock Quantity *</label>
+            <input type="number" min="1" id="newProdStock" required placeholder="120" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('addProductModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Save Product to Inventory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Record Dispense / Sale -->
+  <div class="modal-backdrop" id="saleModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-prescription-bottle-medical"></i> Dispense Medication (New Sale)</h3>
+        <button class="close-modal" onclick="closeModal('saleModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaleSubmit(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Patient / Customer Name *</label>
+            <input type="text" id="saleCustomer" required placeholder="e.g. Maria Santos (Rx #4921)" />
+          </div>
+          <div class="form-group">
+            <label>Select Medication *</label>
+            <select id="saleProductSelect" required></select>
+          </div>
+          <div class="form-group">
+            <label>Quantity to Dispense *</label>
+            <input type="number" id="saleQty" min="1" value="2" required />
+          </div>
+          <div class="form-group">
+            <label>Payment Status *</label>
+            <select id="salePaymentStatus">
+              <option value="PAID">PAID</option>
+              <option value="UNPAID">UNPAID (Insurance / Credit)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('saleModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Complete Dispense &amp; Deduct Stock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Restock / Purchase -->
+  <div class="modal-backdrop" id="purchaseModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-truck-medical"></i> Restock Pharmacy Inventory (Purchase)</h3>
+        <button class="close-modal" onclick="closeModal('purchaseModal')">&times;</button>
+      </div>
+      <form onsubmit="handlePurchaseSubmit(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Pharmaceutical Supplier *</label>
+            <input type="text" id="purchaseSupplier" required value="MedLine Philippines Pharma Distributors" />
+          </div>
+          <div class="form-group">
+            <label>Select Medication to Restock *</label>
+            <select id="purchaseProductSelect" required></select>
+          </div>
+          <div class="form-group">
+            <label>Units Received *</label>
+            <input type="number" id="purchaseQty" min="1" value="100" required />
+          </div>
+          <div class="form-group">
+            <label>Updated Batch Number</label>
+            <input type="text" id="purchaseBatch" value="PC-2026-995" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('purchaseModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Add Stock to Inventory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Pharmacy Shield / Compliance & License Modal -->
+  <div class="modal-backdrop" id="shieldModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-shield-halved" style="color: #eab308;"></i> Pharma Care Compliance &amp; Verification</h3>
+        <button class="close-modal" onclick="closeModal('shieldModal')">&times;</button>
+      </div>
+      <div class="shield-details">
+        <div class="shield-banner">
+          <i class="fa-solid fa-circle-check"></i>
+          <div>
+            <strong>Verified Licensed Pharmacy Facility</strong>
+            <p>License ID: PH-CARE-2026-88410 &bull; Active &amp; Compliant</p>
+          </div>
+        </div>
+        <div class="shield-grid">
+          <div class="shield-item">
+            <span class="shield-label">Cold Chain Monitor</span>
+            <strong class="text-green">4.2°C (Optimal 2°C–8°C)</strong>
+          </div>
+          <div class="shield-item">
+            <span class="shield-label">Controlled Vault Lock</span>
+            <strong class="text-blue">Secured &amp; Audited</strong>
+          </div>
+          <div class="shield-item">
+            <span class="shield-label">FDA / GDP Inspection</span>
+            <strong class="text-green">Passed (Oct 2026)</strong>
+          </div>
+          <div class="shield-item">
+            <span class="shield-label">Active Operator</span>
+            <strong>Anonymous (Authorized)</strong>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" onclick="closeModal('shieldModal')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastMsg"></div>
+
+  <script src="bayog.js"></script>
+</body>
+</html>
